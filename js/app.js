@@ -10,6 +10,34 @@ const coffees = [
   { name: "Veritatis", image: "images/coffee8.jpg" },
   { name: "Accusantium", image: "images/coffee9.jpg" },
 ]
+
+const webPush = require("web-push");
+
+webPush.setVapidDetails(
+  "https://mikelartola.github.io",
+  "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEB69OPb5fhNPw8BS0ZNQjSiBGQf/j1tzvyn3nz1DEzu12jeGXZ+FZEZweVOlWuCWiLjqF+soyJu631glqdJ4SwA==",
+  fs.readFileSync(path.join(__dirname, 'vapid_public.pem'), 'utf8').then((vapidPublicKey) => {vapidPublicKey
+    .replace(/-----BEGIN PUBLIC KEY-----/g, '')
+    .replace(/-----END PUBLIC KEY-----/g, '')
+    .replace(/\n/g, '');}));
+
+
+function urlBase64ToUint8Array(base64String) {
+  var padding = '='.repeat((4 - base64String.length % 4) % 4);
+  var base64 = (base64String + padding)
+    .replace(/\-/g, '+')
+    .replace(/_/g, '/');
+ 
+  var rawData = window.atob(base64);
+  var outputArray = new Uint8Array(rawData.length);
+ 
+  for (var i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+}
+
+
 const showCoffees = () => {
     let output = ""
     coffees.forEach(
@@ -64,13 +92,7 @@ const showCoffees = () => {
   
     setTimeout(function () {
       webPush
-        .sendNotification(subscription, payload, options)
-        .then(function () {
-          res.sendStatus(201);
-        })
-        .catch(function (error) {
-          console.log(error);
-          res.sendStatus(500);
-        });
+        .sendNotification(subscription, payload, options);
     }, req.body.delay * 1000);
   };
+
